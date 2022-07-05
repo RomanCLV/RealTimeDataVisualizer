@@ -476,7 +476,7 @@ void init_10() {
 
   // After testing, you may notice that each axis adapts its size to display the curve.
   // Due to the difference in the number of points between each curve, there is a shift of the axes. (More visible with the 4 x 1 design)
-  // You can use the following command to synchronize the dimensions of the specified axes to a reference axis.
+  // You can use the following command to synchronize the dimension of the abscissa of all specified axes with respect to a reference axis.
   // Serial.println("-sa 5 1 2 3 4"); // Axes 2, 3, and 4 are synchronized to axis 1, refreshing every 5 seconds
   }
 

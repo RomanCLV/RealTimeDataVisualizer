@@ -130,7 +130,7 @@ def get_command_details(command: str):
 
         case "-sa":
             name = "Synchronize Axes"
-            description = "Allow to synchronize the dimensions of all specified axes with respect to a reference axis.\n" \
+            description = "Allow to synchronize the dimension of the abscissa of all specified axes with respect to a reference axis.\n" \
                           "Set the synchronization time (in seconds) to loop.\n" \
                           "Set it to 0 to do it only once.\n" \
                           "Set it to -1 to stop the loop.\n" \

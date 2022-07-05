@@ -299,15 +299,10 @@ def get_ydata(line):
 
 
 def synchronize_axes(ori_axis, axes):
-    """Synchronize axes dimensions with respect of the ori_axis dimensions"""
+    """Synchronize the X axis dimensions with respect of the ori_axis dimensions."""
     x_min_ori, x_max_ori = ori_axis.get_xlim()
-    y_min_ori, y_max_ori = ori_axis.get_ylim()
     for axis in axes:
         x_min, x_max = axis.get_xlim()
-        y_min, y_max = axis.get_ylim()
 
         if x_min != x_min_ori or x_max != x_max_ori:
             axis.set_xlim(x_min_ori, x_max_ori)
-
-        if y_min != x_min_ori or y_max != x_max_ori:
-            axis.set_ylim(y_min_ori, y_max_ori)
