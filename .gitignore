@@ -1,0 +1,45 @@
+/data
+__pycache__
+
+# JetBrains IDEs
+/venv
+.idea/
+*.iml
+
+# IDEs and editors
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# macOS
+.DS_Store
+
+# compiled output
+/dist
+
+# Generated files
+bin/
+gen/
+out/
+release/
+
+# Log Files
+logs
+*.log
+
+# dotenv environment variables file
+.env
+.env.test
+
+# Version control
+vcs.xml
