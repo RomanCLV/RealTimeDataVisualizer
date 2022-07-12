@@ -26,6 +26,7 @@ You can also use two options to specify ports using the CLI.
 The both command could be used at the same time:
 - Use `python main.py -p PORT1 PORT2 ... -f myports.txt` to specify the available ports, combined with the ports contained in the file.
 
+To find out which port your board is using, run the `Arduino Software > Tools > Port`.
 
 ### `pyplot_utils.py`
 The `pyplot_utils.py` script contains some functions helping to build the GUI. Used by `main.py`.
