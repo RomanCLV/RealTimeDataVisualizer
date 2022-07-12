@@ -1,3 +1,7 @@
-
 COM3
 COM1
+/dev/cu.usbmodem3a21
+/dev/cu.Bluetooth-Incoming-Port
+/dev/cu.Bluetooth-Modem
+/dev/cu.JBLXtreme-SPPDev
+/dev/cu.JBLXtreme3-vCOMM
