@@ -8,7 +8,9 @@ Copyright © 2021 Roman Clavier
 Python describing
 """
 
-# TODO: Auto resize on y axis
+# TODO: Delay before auto change port                         : High
+# TODO: Derivative unexpected clear (when save data turn off) : Medium
+# TODO: Auto resize on y axis                                 : Low
 
 from datetime import datetime
 import time
@@ -197,13 +199,14 @@ def read():
 
     try:
         data_read = serial_port.readline()
+
     except serial.SerialException:
         is_connected = False
         log("Cannot read data")
         return
 
-    for axes_synchronizer in axes_synchronizer:
-        axes_synchronizer.try_synchronize()
+    for synchronizer in axes_synchronizer:
+        synchronizer.try_synchronize()
 
     if not data_read:
         return
