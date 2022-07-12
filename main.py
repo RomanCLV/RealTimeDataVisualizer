@@ -8,16 +8,25 @@ Copyright © 2021 Roman Clavier
 Python describing
 """
 
-from datetime import datetime
+# TODO: File containing port to check
+# TODO: main.py port (cmd parse) to select a specific port
+# TODO: Auto resize on y axis
+
+import datetime
 import time
 import re
-import serial
 import os
 import signal
 
-import pyplot_utils
-import pyplot_utils as utils
 import command_helper as helper
+try:
+    import serial
+    import pyplot_utils as utils
+except ImportError as error:
+    print(f"\n{type(error).__name__}: {error.msg}\n")
+    print("To install all required packages/modules, use: python pip install -r requirements.txt\n")
+    input("Please press the Enter key to exit")
+    exit(-1)
 
 global run
 
@@ -29,14 +38,14 @@ global update_title_requested
 global separator
 global decimal_character
 
-global serialport
+global serial_port
 global is_connected
 global last_header
 global all_headers
 
 global fig
 global max_values
-global axes_synchronizers
+global axes_synchronizer
 
 
 def main():
@@ -55,7 +64,7 @@ def main():
     global all_headers
     global fig
     global max_values
-    global axes_synchronizers
+    global axes_synchronizer
 
     run = True
     base_path = os.path.join(os.getcwd(), "data")
@@ -70,7 +79,7 @@ def main():
     all_headers = []
     fig = None
     max_values = None
-    axes_synchronizers = []
+    axes_synchronizer = []
 
     while run:
         if not is_connected:
@@ -97,27 +106,27 @@ def on_close(event):
     run = False
 
 
-def sigint_handler(signal, frame):
+def sigint_handler(sign, frame):
     """Catch KeyboardInterrupt"""
     global run
     run = False
 
 
-def connect(com_name="COM3", baudrate=9600, timeout=0.01):
+def connect(com_name="COM3", baud_rate=9600, timeout=0.01):
     """
     Try to connect with the arduino
     :param com_name: Name of communication port
-    :param baudrate: Communication's frequence
+    :param baud_rate: Communication's frequency
     :param timeout: Timer before continue
     :return: void
     """
     global is_connected
-    global serialport
+    global serial_port
 
     try:
-        serialport = serial.Serial(com_name, baudrate=baudrate, timeout=timeout)
+        serial_port = serial.Serial(com_name, baudrate=baud_rate, timeout=timeout)
         is_connected = True
-        print(f"Connection success to: {com_name} at baudrate: {baudrate}")
+        print(f"Connection success to: {com_name} at baud rate: {baud_rate}")
     except serial.SerialException:
         is_connected = False
         print(f"Connection failed to: {com_name}")
@@ -128,7 +137,7 @@ def read():
     """
     Read data from Arduino card
     """
-    global serialport
+    global serial_port
     global is_connected
     global file_path
     global remove_unused_files
@@ -139,16 +148,16 @@ def read():
     global last_header
     global fig
     global max_values
-    global axes_synchronizers
+    global axes_synchronizer
 
     try:
-        data_read = serialport.readline()
+        data_read = serial_port.readline()
     except serial.SerialException:
         is_connected = False
         log("Cannot read data")
         return
 
-    for axes_synchronizer in axes_synchronizers:
+    for axes_synchronizer in axes_synchronizer:
         axes_synchronizer.try_synchronize()
 
     if not data_read:
@@ -199,11 +208,12 @@ def read():
 
         case "-aa":
             if fig is None:
-                fig = utils.create_plot(window_title="Real time data visualizer", fig_title=file_path, close_event=on_close)
+                fig = utils.create_plot(window_title="Real time data visualizer", fig_title=file_path,
+                                        close_event=on_close)
             title = data[2] if len(data) >= 3 else None
-            xlabel = data[3] if len(data) >= 4 else None
-            ylabel = data[4] if len(data) >= 5 else None
-            utils.add_axis(fig, data[1], title, xlabel, ylabel)
+            x_label = data[3] if len(data) >= 4 else None
+            y_label = data[4] if len(data) >= 5 else None
+            utils.add_axis(fig, data[1], title, x_label, y_label)
 
         case "-aas":
             add_multi_axis(data[1], data[2])
@@ -225,9 +235,9 @@ def read():
                     axes.append(get_axis(fig, i))
                 pass
                 if data[1] == 0:
-                    pyplot_utils.synchronize_axes(ori_axis, axes)
+                    utils.synchronize_axes(ori_axis, axes)
                 else:
-                    axes_synchronizers.append(AxesSynchronizer(data[1], ori_axis, axes))
+                    axes_synchronizer.append(AxesSynchronizer(data[1], ori_axis, axes))
 
         case "-clra":
             utils.clear_axis(get_axis(fig, data[1]))
@@ -279,12 +289,13 @@ def read():
             utils.add_values(get_line(fig, data[1], data[2]), x, y, max_values)
 
         case "-ld":
-            derived(get_line(fig, data[3], data[4]),
-                    get_line(fig, data[1], data[2]),
-                    data[5] if len(data) == 6 else 1)
+            utils.compute_derivative(get_line(fig, data[3], data[4]),
+                                     get_line(fig, data[1], data[2]),
+                                     max_values,
+                                     data[5] if len(data) == 6 else 1)
 
         case _:
-            log(f"Unknow {data_decoded}")
+            log(f"Unknown {data_decoded}")
 
     if update_title_requested and fig is not None:
         utils.set_title(fig, file_path)
@@ -292,7 +303,7 @@ def read():
 
 
 def read_validation_error(cmd: str, message: str, data_err: str):
-    """Print a message to indicate an error occured"""
+    """Print a message to indicate an error occurred"""
     log(f"Validation error:\n  Command: {cmd}\n  Message: {message}\n  Given: {data_err}")
 
 
@@ -320,7 +331,7 @@ def create_file():
     global created_files
     global update_title_requested
 
-    now = datetime.now()
+    now = datetime.datetime.now()
     dt_string = now.strftime("%Y_%d_%m-%H_%M_%S")
     file_path = os.path.join(base_path, f"{dt_string}.txt")
 
@@ -346,12 +357,12 @@ def add_multi_axis(row: int, column: int):
 
 
 def remove_synchronizer_on(ori_axis):
-    """Remove all the synchronizers having this reference axis."""
-    global axes_synchronizers
+    """Remove all the synchronizer having this reference axis."""
+    global axes_synchronizer
     i = 0
-    while i < len(axes_synchronizers):
-        if axes_synchronizers[i].get_ori_axis() == ori_axis:
-            axes_synchronizers.remove(axes_synchronizers[i])
+    while i < len(axes_synchronizer):
+        if axes_synchronizer[i].get_ori_axis() == ori_axis:
+            axes_synchronizer.remove(axes_synchronizer[i])
             i -= 1
         i += 1
 
@@ -420,72 +431,24 @@ def try_write(data: str, try_count=1, rewrite_header_if_error=False):
 
 
 def is_int(text: str):
-    """Check is text matchs with an int"""
+    """Check if text matches with an int"""
     return re.match(r"^[-+]?\d+$", text)
 
 
 def is_float(text: str):
-    """Check is text matchs with a float"""
+    """Check if text matches with a float"""
     return re.match(r"[-+]?\d+(\.\d*)?$", text)
 
 
 def write_datas(data: []):
     """
-    Save the data given. Line are splited by *separator*
+    Save the data given. Line are split by *separator*
     :param data: array of array of native type (int, bool, float, string, ...)
     :return: void
     """
     for line in data:
         if line:
             write_data(line)
-
-
-def derived(ori_line: pyplot_utils.plt.Line2D, derived_line: pyplot_utils.plt.Line2D, degree: int):
-    """Add all missing derivative values to have the same number of points as the main line"""
-    ori_xdata, ori_ydata = utils.get_data(ori_line)
-    derived_xdata = utils.get_xdata(derived_line)
-
-    if len(derived_xdata) > len(ori_xdata):
-        pyplot_utils.clear_line(derived_line)
-
-    if len(derived_xdata) == 0:
-        diff = len(ori_xdata)
-    else:
-        index_equal = 1
-        # Try to find the last derived x in the original list
-        while ori_xdata[-index_equal] != derived_xdata[-1] and index_equal <= len(ori_xdata):
-            index_equal += 1
-        if index_equal >= len(ori_xdata):  # If no match
-            diff = len(ori_xdata)
-        else:
-            diff = index_equal - 1  # We go back 1 because we started at 1
-
-    new_x = [None for _ in range(diff)]
-    new_y = [None for _ in range(diff)]
-
-    for i in range(0, diff):
-        start_index = -diff - degree + i
-        if start_index < -len(ori_xdata):
-            continue
-        end_index = -diff + i + 1
-        if end_index == 0:
-            x_to_add = ori_xdata[start_index:]
-            y_to_add = ori_ydata[start_index:]
-        else:
-            x_to_add = ori_xdata[start_index:end_index]
-            y_to_add = ori_ydata[start_index:end_index]
-        try:
-            y = utils.get_derived(x_to_add, y_to_add, degree)
-            # only if y computed, new_x and new_y are feed
-            new_x[i] = x_to_add[-1]
-            new_y[i] = y
-        except IndexError:  # if not enough data to build a derived
-            pass
-
-    new_x = [x for x in new_x if x is not None]
-    new_y = [y for y in new_y if y is not None]
-    if len(new_x) > 0:
-        utils.add_values(derived_line, new_x, new_y, max_values)
 
 
 def log(data: str):
@@ -514,7 +477,7 @@ class AxesSynchronizer:
         """Try to synchronize axes dimensions"""
         if time.time() - self._last_refresh >= self._timeout:
             self._last_refresh = time.time()
-            pyplot_utils.synchronize_axes(self._ori_axis, self._axes)
+            utils.synchronize_axes(self._ori_axis, self._axes)
 
 
 if __name__ == "__main__":

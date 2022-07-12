@@ -77,7 +77,7 @@ def get_command_details(command: str):
             arg = "[ruf:bool]"
             examples = "-ruf True   => Enable deletion of all created empty files.\n" \
                        "-ruf 1      => Exactly the same result as the previous example.\n" \
-                       "-ruf 0      => Desable deletion of all created empty files."
+                       "-ruf 0      => Disable deletion of all created empty files."
 
         case "-s":
             name = "Separator"
@@ -101,7 +101,7 @@ def get_command_details(command: str):
             name = "Add Axis"
             description = "Add a new axis.\nPosition is defined by a tree-digit number corresponding at row (>= 1), " \
                           "column (>= 1) and place (1 <= place <= row * column).\n" \
-                          "The title and the labels can be set optionnaly."
+                          "The title and the labels can be set optionally."
             arg = "[rcp:int] [title*:str] [xlabel*:str] [ylabel*:str]"
             examples = "-aa 111                                  => Add an axis with position: row: 1 ; column: 1 ; Place: 1.\n" \
                        "-aa 212 new_axis time_(s) position_(m)   => Add an axis with position: row: 2 ; column: 1 ; Place: 2, with title 'new axis', and labels 'time (s)' and 'position (m).'"
@@ -161,7 +161,7 @@ def get_command_details(command: str):
         case "-al":
             name = "Add Line"
             description = "Add a new line to an axis. Select an axis by its position (>= 1).\n" \
-                          "Line's color can be set optionnaly. Color can be a color's name \"red\" or a hexadecimal code \"#FF0000\".\n" \
+                          "Line's color can be set optionally. Color can be a color's name \"red\" or a hexadecimal code \"#FF0000\".\n" \
                           "If no color is specified, it is automatically chosen from the following list:\n" \
                           "Hex. code ~ Approximate rendering\n" \
                           "#E24A33   ~ red\n" \
@@ -276,7 +276,7 @@ def get_command_details(command: str):
             arg = "[oriAxis:int] [oriLine:int] [derivedAxis:int] [derivedLine:int] [degree*:int]"
             examples = "-ld 1 1 2 1     => Take the line 1 in axis 1, and add its derivation in line 1 in axis 2. Variation degree is automatically set to 1.\n" \
                        "-ld 1 1 2 1 1   => Exactly the same result as the previous example.\n" \
-                       "-ld 1 1 1 3 2   => Add the derived line in the same axis, in line 3. The derived's degree is 2."
+                       "-ld 1 1 1 3 2   => Add the derived line in the same axis, in line 3. The derivative's degree is 2."
 
         case _:
             name = None
@@ -505,7 +505,6 @@ def parse_bool(data: [], index=None):
     Try to parse values to boolean.
     :param data: Data to source.
     :param index: Index to parse. If None, check all the data.
-    :param skip_first: Skip the first element.
     :return: True if all is parsed, else False.
     """
     if index is None:
@@ -606,15 +605,15 @@ def main():
         else:
             col_format = "{:<10}{:}\n"
 
-            cmdList = []
-            argList = []
+            cmd_list = []
+            arg_list = []
             for cmd in commands:
                 details = get_command_details(cmd)
-                cmdList.append(details[0])
-                argList.append(details[3])
+                cmd_list.append(details[0])
+                arg_list.append(details[3])
 
             with open(file_path, "w") as file:
-                for x in zip(cmdList, argList):
+                for x in zip(cmd_list, arg_list):
                     file.write(col_format.format(*x))
 
         print(f"File created: {file_path}")

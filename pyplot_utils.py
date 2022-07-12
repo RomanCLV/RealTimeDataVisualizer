@@ -116,7 +116,7 @@ def set_axis_title(axis, title):
 
 
 def set_axis_label(axis, xlabel, ylabel):
-    """Set axiss labels"""
+    """Set axis labels"""
     set_axis_xlabel(axis, xlabel)
     set_axis_ylabel(axis, ylabel)
 
@@ -141,14 +141,14 @@ def remove_axis(axis):
     axis.remove()
 
 
-def add_line(axis, xvalue=None, yvalue=None):
+def add_line(axis, x_value=None, y_value=None):
     """add a line"""
     # create a variable for the line, so we can later update it
-    if xvalue is None:
-        xvalue = []
-    if yvalue is None:
-        yvalue = []
-    return axis.plot(xvalue, yvalue, default_marker, alpha=0.8)[0]
+    if x_value is None:
+        x_value = []
+    if y_value is None:
+        y_value = []
+    return axis.plot(x_value, y_value, default_marker, alpha=0.8)[0]
 
 
 def remove_line(line):
@@ -180,7 +180,7 @@ def add_values(line, x, y, max_values=None, margin_coef=0.95):
         y_data = np.append(line.get_ydata(), y)
     else:
         if max_values < 1:
-            raise ValueError("max_values is a positiv no-null integer")
+            raise ValueError("max_values is a positive no-null integer")
         else:
             # manage size of data
             x_data = line.get_xdata()
@@ -240,12 +240,12 @@ def add_values(line, x, y, max_values=None, margin_coef=0.95):
     line.set_ydata(y_data)
 
 
-def get_line_derived(line, degree=1):
+def get_line_derivative(line, degree=1):
     """Get derived from a line"""
-    return get_derived(get_xdata(line), get_ydata(line), degree)
+    return get_derivative(get_xdata(line), get_ydata(line), degree)
 
 
-def get_derived(x_data, y_data, degree=1):
+def get_derivative(x_data, y_data, degree=1):
     """
     Get derived value
     :param x_data: The x array
@@ -255,7 +255,7 @@ def get_derived(x_data, y_data, degree=1):
     """
     if degree < 0:
         raise ValueError("Degree is positive or null : *degree* >= 0")
-    if degree == 0:         # derivated function of degree 0 is itselft
+    if degree == 0:         # derivative function of degree 0 is itself
         return y_data[-1]
 
     if len(x_data) <= degree:
@@ -280,7 +280,55 @@ def get_derived(x_data, y_data, degree=1):
         new_x_data[-1 - i] = x1
         new_y_data[-1 - i] = (y1 - y0) / (x1 - x0)
 
-    return get_derived(new_x_data, new_y_data, degree - 1)
+    return get_derivative(new_x_data, new_y_data, degree - 1)
+
+
+def compute_derivative(ori_line, derived_line, max_values: int, degree: int):
+    """Add all missing derivative values to have the same number of points as the main line"""
+    ori_xdata, ori_ydata = get_data(ori_line)
+    derived_xdata = get_xdata(derived_line)
+
+    if len(derived_xdata) > len(ori_xdata):
+        clear_line(derived_line)
+
+    if len(derived_xdata) == 0:
+        diff = len(ori_xdata)
+    else:
+        index_equal = 1
+        # Try to find the last derived x in the original list
+        while ori_xdata[-index_equal] != derived_xdata[-1] and index_equal <= len(ori_xdata):
+            index_equal += 1
+        if index_equal >= len(ori_xdata):  # If no match
+            diff = len(ori_xdata)
+        else:
+            diff = index_equal - 1  # We go back 1 because we started at 1
+
+    new_x = [None for _ in range(diff)]
+    new_y = [None for _ in range(diff)]
+
+    for i in range(0, diff):
+        start_index = -diff - degree + i
+        if start_index < -len(ori_xdata):
+            continue
+        end_index = -diff + i + 1
+        if end_index == 0:
+            x_to_add = ori_xdata[start_index:]
+            y_to_add = ori_ydata[start_index:]
+        else:
+            x_to_add = ori_xdata[start_index:end_index]
+            y_to_add = ori_ydata[start_index:end_index]
+        try:
+            y = get_derivative(x_to_add, y_to_add, degree)
+            # only if y computed, new_x and new_y are feed
+            new_x[i] = x_to_add[-1]
+            new_y[i] = y
+        except IndexError:  # if not enough data to build a derived
+            pass
+
+    new_x = [x for x in new_x if x is not None]
+    new_y = [y for y in new_y if y is not None]
+    if len(new_x) > 0:
+        add_values(derived_line, new_x, new_y, max_values)
 
 
 def get_data(line):

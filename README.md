@@ -1,14 +1,14 @@
 # Real Time Data Visualizer
 
-**Python Projet using Python 3.10.5**
+**Python Project using Python 3.10.5**
 
 **************
 
-## Environnement
+## Environment
 - Python 3.10.5 is required.
 
 ## Run
-- At first launch, use `pip install -r requirements.txt` to install all the dependencies.
+- At first launch, use `python pip install -r requirements.txt` to install all the dependencies.
 - Use `python main.py` to run the script.
 
 ## Scripts
