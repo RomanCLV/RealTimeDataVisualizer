@@ -8,25 +8,18 @@ Copyright © 2021 Roman Clavier
 Python describing
 """
 
-# TODO: File containing port to check
-# TODO: main.py port (cmd parse) to select a specific port
 # TODO: Auto resize on y axis
 
-import datetime
+from datetime import datetime
 import time
 import re
 import os
 import signal
+import argparse
 
 import command_helper as helper
-try:
-    import serial
-    import pyplot_utils as utils
-except ImportError as error:
-    print(f"\n{type(error).__name__}: {error.msg}\n")
-    print("To install all required packages/modules, use: python pip install -r requirements.txt\n")
-    input("Please press the Enter key to exit")
-    exit(-1)
+
+# Additionnal modules added in the __name__ == "__main__" bloc
 
 global run
 
@@ -39,6 +32,8 @@ global separator
 global decimal_character
 
 global serial_port
+global com_ports
+
 global is_connected
 global last_header
 global all_headers
@@ -58,6 +53,7 @@ def main():
     global update_title_requested
     global separator
     global decimal_character
+    global com_ports
 
     global is_connected
     global last_header
@@ -65,6 +61,8 @@ def main():
     global fig
     global max_values
     global axes_synchronizer
+
+    args = parser.parse_args()
 
     run = True
     base_path = os.path.join(os.getcwd(), "data")
@@ -75,15 +73,47 @@ def main():
     separator = ";"
     decimal_character = "."
     is_connected = False
+    com_ports = []
     last_header = []
     all_headers = []
     fig = None
     max_values = None
     axes_synchronizer = []
 
+    print()
+
+    if args.port:
+        for port in args.port:
+            com_ports.append(port.strip())
+
+    if args.file:
+        get_ports(args.file)
+
+    if len(com_ports) == 0:
+        print("No communication port specified.\n"
+              "Try to read the ports.txt file.")
+        get_ports("ports.txt")
+
+    if len(com_ports) == 0:
+        print("No communication port selected.\n"
+              "To specify it (or them), you can:\n"
+              "- create the file ports.txt and write the available ports you want\n"
+              "- use main.py -p [PORT1 PORT2 ...] or main.py -f myports.txt")
+        run = False
+
+    print("Available ports selected:")
+    for port in com_ports:
+        print(port)
+    print()
+
+    com_ports_index = 0
     while run:
         if not is_connected:
-            connect()
+            connect(com_ports[com_ports_index])
+            if not is_connected:
+                com_ports_index += 1
+                if com_ports_index == len(com_ports):
+                    com_ports_index = 0
         else:
             read()
         if fig is not None:
@@ -112,7 +142,22 @@ def sigint_handler(sign, frame):
     run = False
 
 
-def connect(com_name="COM3", baud_rate=9600, timeout=0.01):
+def get_ports(filepath):
+    """Try to get ports from the given file."""
+    global com_ports
+
+    if os.path.exists(filepath):
+        with open(filepath, "r") as file:
+            lines = file.readlines()
+        for line in lines:
+            item = line.strip()
+            if item and item not in com_ports:
+                com_ports.append(item)
+    else:
+        print(f"File not found: {filepath}")
+
+
+def connect(com_name, baud_rate=9600, timeout=0.01):
     """
     Try to connect with the arduino
     :param com_name: Name of communication port
@@ -331,7 +376,7 @@ def create_file():
     global created_files
     global update_title_requested
 
-    now = datetime.datetime.now()
+    now = datetime.now()
     dt_string = now.strftime("%Y_%d_%m-%H_%M_%S")
     file_path = os.path.join(base_path, f"{dt_string}.txt")
 
@@ -482,4 +527,17 @@ class AxesSynchronizer:
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, sigint_handler)
+
+    try:
+        import serial
+        import pyplot_utils as utils
+    except ImportError as error:
+        print(f"\n{type(error).__name__}: {error.msg}\n")
+        print("To install all required packages/modules, use: python pip install -r requirements.txt\n")
+        input("Please press the Enter key to exit")
+        exit(-1)
+
+    parser = argparse.ArgumentParser(description="main.py CLI")
+    parser.add_argument("-p", "--port", type=str, nargs="+", help="set the communication ports.")
+    parser.add_argument("-f", "--file", type=str, help="set the file containing all communication ports.")
     main()

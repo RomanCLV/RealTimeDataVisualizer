@@ -11,14 +11,6 @@ Get the list of available commands, their details, and other actions, using a co
 import argparse
 import os
 
-parser = argparse.ArgumentParser(description='Command helper')
-parser.add_argument("-d", "--details", metavar="", required=False, type=str, help="get the details of the given command. Usage: command_helper.py -d n")
-parser.add_argument("-e", "--extract", metavar="", required=False, type=str, help="extract command details to a file. Usage: command_helper.py -e filename.txt")
-group = parser.add_mutually_exclusive_group()
-group.add_argument("-l", "--list", action="store_true", help="get the list of available commands. Usage: command_helper.py -l")
-group.add_argument("-f", "--full", action="store_true", help="full extraction. Usage: command_helper.py -e filename.txt -f")
-args = parser.parse_args()
-
 
 def get_command_list():
     """Get the list of the available commands"""
@@ -574,17 +566,20 @@ def build_details_str(details, char):
     :param char: Used to start an information
     :return: A string containing details of a command
     """
-    return f"\n{char}Name: {details[1]}\n{char}Description:\n{details[2]}\n{char}Usage: {details[0]} {details[3]}\n{char}Examples:\n{details[4]}\n"
+    return f"{char}Name: {details[1]}\n{char}Description:\n{details[2]}\n{char}Usage: {details[0]} {details[3]}\n{char}Examples:\n{details[4]}"
 
 
 def main():
     """Main function"""
+    print()
 
     if args.list:
         commands = get_command_list()
-        for command in commands:
-            details = get_command_details(command)
-            print(f"{details[0]}\t{details[3]}")
+        col_format = "{:<10}{:}"
+        for cmd in commands:
+            details = get_command_details(cmd)
+            details_to_print = (details[0], details[3])
+            print(col_format.format(*details_to_print))
 
     elif args.details:
         details = get_command_details(f"-{args.details}")
@@ -601,7 +596,7 @@ def main():
             with open(file_path, "w") as file:
                 for cmd in commands:
                     details = get_command_details(cmd)
-                    file.write(build_details_str(details, "- "))
+                    file.write(build_details_str(details, "- ") + "\n\n\n")
         else:
             col_format = "{:<10}{:}\n"
 
@@ -617,8 +612,18 @@ def main():
                     file.write(col_format.format(*x))
 
         print(f"File created: {file_path}")
+    elif args.full:
+        print("The \"full\" (-f) option can only be used with the \"extraction\" (-e).")
+
     print()
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Command helper CLI")
+    parser.add_argument("-d", "--details", type=str, help="get the details of the given command. Usage: command_helper.py -d n")
+    parser.add_argument("-e", "--extract", type=str, help="extract command details to a file. Usage: command_helper.py -e filename.txt")
+    parser.add_argument("-l", "--list", action="store_true", help="get the list of available commands. Usage: command_helper.py -l")
+    parser.add_argument("-f", "--full", action="store_true", help="full extraction. Usage: command_helper.py -e filename.txt -f")
+    args = parser.parse_args()
+    print("Command helper parser created")
     main()
