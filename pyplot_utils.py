@@ -23,13 +23,25 @@ def init_plot():
     plt.ion()
 
 
+def close(fig, close_event_id=None):
+    """Close all"""
+    plt.ioff()
+    if close_event_id:
+        remove_close_event(fig, close_event_id)
+    plt.close(fig)
+
+
 def create_plot(window_title=None, fig_title=None, close_event=None):
-    """Create a new plot"""
+    """
+    Create a new plot
+    :return: The figure created and the close event id, if one is given
+    """
 
     # Cut your window in 2 rows and 1 column, and start a plot in the first part
 
     fig = plt.figure(figsize=(18, 10), dpi=80)  # default dpi = 100.0
     # fig = plt.figure(num=None, figsize=(18, 10), dpi=80, facecolor='white', edgecolor='red')
+    cid = None
 
     if fig_title is not None:
         set_title(fig, fig_title)
@@ -38,10 +50,10 @@ def create_plot(window_title=None, fig_title=None, close_event=None):
         set_window_title(fig, window_title)
 
     if close_event is not None:
-        set_close_event(fig, close_event)
+        cid = set_close_event(fig, close_event)
 
     plt.show()
-    return fig
+    return fig, cid
 
 
 def add_multi_axis(row, column):
@@ -60,8 +72,16 @@ def add_multi_axis(row, column):
 
 
 def set_close_event(fig, close_event):
-    """Set event closing"""
-    fig.canvas.mpl_connect("close_event", close_event)
+    """
+    Set event closing
+    :return: The event id
+    """
+    return fig.canvas.mpl_connect("close_event", close_event)
+
+
+def remove_close_event(fig, cid):
+    """Remove the event given"""
+    fig.canvas.mpl_disconnect(cid)
 
 
 def set_window_title(fig, title):

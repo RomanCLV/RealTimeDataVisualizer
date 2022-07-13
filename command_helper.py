@@ -613,17 +613,16 @@ def main():
 
         print(f"File created: {file_path}")
     elif args.full:
-        print("The \"full\" (-f) option can only be used with the \"extraction\" (-e).")
+        print("The \"full\" (-f) option can only be used with the \"extraction\" (-e).\nUsage: command_helper.py -e filename.txt -f")
 
     print()
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Command helper CLI")
-    parser.add_argument("-d", "--details", type=str, help="get the details of the given command. Usage: command_helper.py -d n")
-    parser.add_argument("-e", "--extract", type=str, help="extract command details to a file. Usage: command_helper.py -e filename.txt")
-    parser.add_argument("-l", "--list", action="store_true", help="get the list of available commands. Usage: command_helper.py -l")
-    parser.add_argument("-f", "--full", action="store_true", help="full extraction. Usage: command_helper.py -e filename.txt -f")
+    parser.add_argument("-d", "--details", type=str, choices=list(map(lambda x: x[1:], get_command_list())), help="get the details of the given command")
+    parser.add_argument("-e", "--extract", type=str, help="extract command details to a file")
+    parser.add_argument("-l", "--list", action="store_true", help="get the list of available commands")
+    parser.add_argument("-f", "--full", action="store_true", help="full extraction (used with -e)")
     args = parser.parse_args()
-    print("Command helper parser created")
     main()

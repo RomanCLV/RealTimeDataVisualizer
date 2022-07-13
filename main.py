@@ -8,9 +8,8 @@ Copyright © 2021 Roman Clavier
 Python describing
 """
 
-# TODO: Delay before auto change port                         : High
 # TODO: Derivative unexpected clear (when save data turn off) : Medium
-# TODO: Auto resize on y axis                                 : Low
+# TODO: Auto resize on y axis => axis.relim() ? : Low
 
 from datetime import datetime
 import time
@@ -21,65 +20,83 @@ import argparse
 
 import command_helper as helper
 
-# Additionnal modules added in the __name__ == "__main__" bloc
+# Additional modules added in the __name__ == "__main__" bloc
 
 global run
+global fig
+
+global is_connected
+global serial_port
+global com_ports
+global com_ports_index
+global port_delay
+global last_read_data_time
+global on_close_id
 
 global base_path
 global file_path
 global created_files
-global remove_unused_files
 global update_title_requested
-global separator
-global decimal_character
-
-global serial_port
-global com_ports
-
-global is_connected
 global last_header
 global all_headers
 
-global fig
+global remove_unused_files
+global separator
 global max_values
+global decimal_character
 global axes_synchronizer
 
 
 def main():
     """The main function"""
     global run
+    global fig
+
+    global is_connected
+    global serial_port
+    global com_ports
+    global com_ports_index
+    global port_delay
+    global last_read_data_time
+    global on_close_id
+
     global base_path
     global file_path
     global created_files
-    global remove_unused_files
     global update_title_requested
-    global separator
-    global decimal_character
-    global com_ports
-
-    global is_connected
     global last_header
     global all_headers
-    global fig
+
+    global remove_unused_files
+    global separator
     global max_values
+    global decimal_character
     global axes_synchronizer
 
     args = parser.parse_args()
 
     run = True
+    fig = None
+
+    is_connected = False
+    serial_port = None
+    com_ports = []
+    com_ports_index = 0
+    port_delay = None
+    last_read_data_time = 0
+    on_close_id = None
+
     base_path = os.path.join(os.getcwd(), "data")
     file_path = ""
     created_files = []
-    remove_unused_files = False
     update_title_requested = False
-    separator = ";"
-    decimal_character = "."
-    is_connected = False
-    com_ports = []
     last_header = []
     all_headers = []
-    fig = None
+
+    remove_unused_files = False
     max_values = None
+    separator = ";"
+    decimal_character = "."
     axes_synchronizer = []
 
     print()
@@ -100,26 +117,46 @@ def main():
         print("No communication port selected.\n"
               "To specify it (or them), you can:\n"
               "- create the file ports.txt and write the available ports you want\n"
-              "- use main.py -p [PORT1 PORT2 ...] or main.py -f myports.txt")
-        run = False
+              "- use main.py -p [PORT1 PORT2 ...] or main.py -f my_ports.txt")
+        input("Please press the Enter key to exit")
+        exit(0)
+
+    if args.delay is not None:
+        if args.delay > 0:
+            port_delay = args.delay
+        else:
+            print(f"The communication port delay must be a non-null positive integer. Given: {args.delay}")
+            input("Please press the Enter key to exit")
+            exit(-1)
 
     print("Available ports selected:")
     for port in com_ports:
         print(port)
     print()
 
-    com_ports_index = 0
     while run:
         if not is_connected:
-            connect(com_ports[com_ports_index])
-            if not is_connected:
+            if fig:
+                close_fig()
+
+            if serial_port:
+                disconnect()
+
+            if com_ports_index >= len(com_ports) or com_ports_index < 0:
+                com_ports_index = 0
+
+            if connect(com_ports[com_ports_index]):
+                last_read_data_time = time.time()
+            else:
                 com_ports_index += 1
-                if com_ports_index == len(com_ports):
-                    com_ports_index = 0
         else:
             read()
-        if fig is not None:
+        if fig:
+            # TODO : If not focus, don't refresh ?
             utils.refresh_plot(0.01)
+
+    disconnect()
+    close_fig()
 
     if remove_unused_files:
         for filepath in created_files:
@@ -173,43 +210,64 @@ def connect(com_name, baud_rate=9600, timeout=0.01):
     try:
         serial_port = serial.Serial(com_name, baudrate=baud_rate, timeout=timeout)
         is_connected = True
-        print(f"Connection success to: {com_name} at baud rate: {baud_rate}")
+        print(f"Connection success to: {serial_port.name} at baud rate: {serial_port.baudrate}\n")
     except serial.SerialException:
         is_connected = False
         print(f"Connection failed to: {com_name}")
         time.sleep(1)
+    return is_connected
+
+
+def disconnect():
+    """Disconnect serial_port"""
+    global serial_port
+    if serial_port:
+        print(f"Close serial port: {serial_port.name}\n")
+        serial_port.close()
+        time.sleep(1)
+        serial_port = None
 
 
 def read():
     """
     Read data from Arduino card
     """
-    global serial_port
+    global fig
+
     global is_connected
+    global serial_port
+    global com_ports_index
+    global port_delay
+    global last_read_data_time
+
     global file_path
     global remove_unused_files
+    global last_header
+
     global update_title_requested
+    global max_values
     global separator
     global decimal_character
-
-    global last_header
-    global fig
-    global max_values
     global axes_synchronizer
 
     try:
         data_read = serial_port.readline()
 
-    except serial.SerialException:
+    except serial.SerialException as err:
         is_connected = False
-        log("Cannot read data")
+        log(f"{type(err).__name__}: {err}")
         return
+
+    if not data_read:
+        if port_delay and time.time() - last_read_data_time > port_delay:
+            is_connected = False
+            com_ports_index += 1
+        return
+    else:
+        last_read_data_time = time.time()
 
     for synchronizer in axes_synchronizer:
         synchronizer.try_synchronize()
-
-    if not data_read:
-        return
 
     data_decoded = data_read.decode("ascii").strip()
     if len(data_decoded) == 0:
@@ -238,7 +296,7 @@ def read():
 
             utils.init_plot()
 
-            if fig is not None:
+            if fig:
                 utils.clear_fig(fig)
             create_file()
 
@@ -255,13 +313,11 @@ def read():
             max_values = data[1]
 
         case "-aa":
-            if fig is None:
-                fig = utils.create_plot(window_title="Real time data visualizer", fig_title=file_path,
-                                        close_event=on_close)
+            pos = data[1]
             title = data[2] if len(data) >= 3 else None
             x_label = data[3] if len(data) >= 4 else None
             y_label = data[4] if len(data) >= 5 else None
-            utils.add_axis(fig, data[1], title, x_label, y_label)
+            add_axis(pos, title, x_label, y_label)
 
         case "-aas":
             add_multi_axis(data[1], data[2])
@@ -355,6 +411,15 @@ def read_validation_error(cmd: str, message: str, data_err: str):
     log(f"Validation error:\n  Command: {cmd}\n  Message: {message}\n  Given: {data_err}")
 
 
+def close_fig():
+    """Close current fig"""
+    global fig
+    global on_close_id
+    utils.close(fig, on_close_id)
+    fig = None
+    on_close_id = None
+
+
 def get_axis(figure, axis_index: int):
     """Get an axis"""
     return figure.axes[get_index(axis_index)]
@@ -395,11 +460,28 @@ def create_file():
     update_title_requested = True
 
 
+def add_axis(pos, title=None, x_label=None, y_label=None):
+    """Add an axis"""
+    global fig
+    global on_close_id
+
+    if fig is None:
+        fig, on_close_id = utils.create_plot(window_title="Real time data visualizer", fig_title=file_path,
+                                             close_event=on_close)
+
+    utils.add_axis(fig, pos, title, x_label, y_label)
+
+
 def add_multi_axis(row: int, column: int):
     """Set axis format"""
     global fig
+    global on_close_id
+
+    if fig:
+        close_fig()
+
     fig = utils.add_multi_axis(row, column)
-    utils.set_close_event(fig, on_close)
+    on_close_id = utils.set_close_event(fig, on_close)
     utils.set_window_title(fig, "Real time data visualizer")
     utils.set_title(fig, file_path)
 
@@ -543,4 +625,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="main.py CLI")
     parser.add_argument("-p", "--port", type=str, nargs="+", help="set the communication ports.")
     parser.add_argument("-f", "--file", type=str, help="set the file containing all communication ports.")
+    parser.add_argument("-d", "--delay", type=int,
+                        help="set a delay (in seconds) to automatically change the communication port if no data is received, even if the connection to the port was successful.")
     main()
