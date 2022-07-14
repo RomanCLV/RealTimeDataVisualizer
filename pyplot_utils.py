@@ -7,6 +7,7 @@ Copyright © 2021 Roman Clavier
 
 This module is helping to use the matplotlib.pyplot module
 """
+import time
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -94,9 +95,10 @@ def set_title(fig, title, fontsize=16):
     fig.suptitle(title, fontsize=fontsize)
 
 
-def refresh_plot(interval=0.01):
+def refresh_plot(fig, interval=0.01):
     """Refresh fig"""
-    plt.pause(interval)
+    fig.canvas.flush_events()   # update the plot and take care of window events (like resizing etc.)
+    time.sleep(interval)
 
 
 def clear_fig(fig):
@@ -243,6 +245,7 @@ def add_values(line, x, y, max_values=None, margin_coef=0.95):
         else:                                               # both
             line.axes.set_xlim([x_min - std, x_max + std])
 
+    # TODO: Auto resize on y axis
     # check y bounds
     if y_min <= y_lim_min or y_max >= y_lim_max:
         std = np.std(y_data)
@@ -258,6 +261,9 @@ def add_values(line, x, y, max_values=None, margin_coef=0.95):
 
     line.set_xdata(x_data)
     line.set_ydata(y_data)
+
+    # line.axes.relim()                  # recompute the data limits
+    # line.axes.autoscale_view()         # automatic axis scaling
 
 
 def get_line_derivative(line, degree=1):
@@ -309,6 +315,7 @@ def compute_derivative(ori_line, derived_line, max_values: int, degree: int):
     derived_xdata = get_xdata(derived_line)
 
     if len(derived_xdata) > len(ori_xdata):
+        # TODO: Derivative unexpected clear (when save data turn off)
         clear_line(derived_line)
 
     if len(derived_xdata) == 0:

@@ -8,9 +8,6 @@ Copyright © 2021 Roman Clavier
 Python describing
 """
 
-# TODO: Derivative unexpected clear (when save data turn off) : Medium
-# TODO: Auto resize on y axis => axis.relim() ? : Low
-
 from datetime import datetime
 import time
 import re
@@ -152,8 +149,7 @@ def main():
         else:
             read()
         if fig:
-            # TODO : If not focus, don't refresh ?
-            utils.refresh_plot(0.01)
+            utils.refresh_plot(fig, 0.01)
 
     disconnect()
     close_fig()
