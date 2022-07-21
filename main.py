@@ -3,7 +3,7 @@
 """
 Main module
 
-Copyright © 2021 Roman Clavier
+Copyright © 2022 Roman Clavier
 
 Python describing
 """
@@ -106,15 +106,15 @@ def main():
         get_ports(args.file)
 
     if len(com_ports) == 0:
-        print("No communication port specified.\n"
-              "Try to read the ports.txt file.")
+        # print("No communication port specified.\n"
+        #      "Try to read the ports.txt file.")
         get_ports("ports.txt")
 
     if len(com_ports) == 0:
         print("No communication port selected.\n"
               "To specify it (or them), you can:\n"
               "- create the file ports.txt and write the available ports you want\n"
-              "- use main.py -p [PORT1 PORT2 ...] or main.py -f my_ports.txt")
+              "- use main.py -p [PORT1 PORT2 ...] or main.py -f my_ports.txt (both commands can be combined)")
         input("Please press the Enter key to exit")
         exit(0)
 
@@ -218,9 +218,8 @@ def disconnect():
     """Disconnect serial_port"""
     global serial_port
     if serial_port:
-        print(f"Close serial port: {serial_port.name}\n")
+        print(f"\nClosing serial port: {serial_port.name}\n")
         serial_port.close()
-        time.sleep(1)
         serial_port = None
 
 
@@ -384,8 +383,12 @@ def read():
 
         case "-lws":
             write_datas(list(map(lambda dt: [str(dt[0]), str(dt[1])], data[3])))
-            x, y = [[dt[0] for (i, dt) in enumerate(data[3])],
-                    [dt[1] for (i, dt) in enumerate(data[3])]]
+            x = []
+            y = []
+
+            for dt in data[3]:
+                x.append(dt[0])
+                y.append(dt[1])
             utils.add_values(get_line(fig, data[1], data[2]), x, y, max_values)
 
         case "-ld":

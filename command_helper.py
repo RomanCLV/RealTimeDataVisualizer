@@ -3,7 +3,7 @@
 """
 Command helper module
 
-Copyright © 2021 Roman Clavier
+Copyright © 2022 Roman Clavier
 
 Get the list of available commands, their details, and other actions, using a command parser.
 """

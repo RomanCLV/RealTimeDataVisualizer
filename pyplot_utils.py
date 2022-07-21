@@ -3,7 +3,7 @@
 """
 pyplot_utils module
 
-Copyright © 2021 Roman Clavier
+Copyright © 2022 Roman Clavier
 
 This module is helping to use the matplotlib.pyplot module
 """
@@ -197,22 +197,21 @@ def set_marker(line, marker):
 def add_values(line, x, y, max_values=None, margin_coef=0.95):
     """Add values to a line"""
 
-    if max_values is None:
-        x_data = np.append(line.get_xdata(), x)
-        y_data = np.append(line.get_ydata(), y)
-    else:
+    if len(x) != len(y):
+        raise ValueError(f"x and y datas required the same length! x len = {len(x)} | y len = {len(y)}")
+
+    x_data = np.append(line.get_xdata(), x)
+    y_data = np.append(line.get_ydata(), y)
+
+    if max_values is not None:
         if max_values < 1:
             raise ValueError("max_values is a positive no-null integer")
         else:
             # manage size of data
-            x_data = line.get_xdata()
-            y_data = line.get_ydata()
             diff = len(x_data) - max_values
             if diff > 0:    # too many values
                 x_data = x_data[diff:]
                 y_data = y_data[diff:]
-            x_data = np.append(x_data, x)
-            y_data = np.append(y_data, y)
 
     x_min = np.min(x_data)
     x_max = np.max(x_data)
@@ -313,20 +312,23 @@ def compute_derivative(ori_line, derived_line, max_values: int, degree: int):
     """Add all missing derivative values to have the same number of points as the main line"""
     ori_xdata, ori_ydata = get_data(ori_line)
     derived_xdata = get_xdata(derived_line)
+    derived_xdata_len = len(derived_xdata)
+    ori_xdata_len = len(ori_xdata)
 
-    if len(derived_xdata) > len(ori_xdata):
-        # TODO: Derivative unexpected clear (when save data turn off)
+    if derived_xdata_len > ori_xdata_len:
         clear_line(derived_line)
+        derived_xdata = get_xdata(derived_line)
+        derived_xdata_len = len(derived_xdata)
 
-    if len(derived_xdata) == 0:
-        diff = len(ori_xdata)
+    if derived_xdata_len == 0:
+        diff = ori_xdata_len
     else:
         index_equal = 1
         # Try to find the last derived x in the original list
-        while ori_xdata[-index_equal] != derived_xdata[-1] and index_equal <= len(ori_xdata):
+        while ori_xdata[-index_equal] != derived_xdata[-1] and index_equal <= ori_xdata_len:
             index_equal += 1
-        if index_equal >= len(ori_xdata):  # If no match
-            diff = len(ori_xdata)
+        if index_equal >= ori_xdata_len:  # If no match
+            diff = ori_xdata_len
         else:
             diff = index_equal - 1  # We go back 1 because we started at 1
 
@@ -335,7 +337,7 @@ def compute_derivative(ori_line, derived_line, max_values: int, degree: int):
 
     for i in range(0, diff):
         start_index = -diff - degree + i
-        if start_index < -len(ori_xdata):
+        if start_index < -ori_xdata_len:
             continue
         end_index = -diff + i + 1
         if end_index == 0:

@@ -29,7 +29,7 @@ unsigned long lastTime;
 // potentiometer
 const byte potPin = A5;
 
-const byte packageSize = 5;
+const byte packageSize = 10;
 byte  packageIndex;
 String valuesToSend = "";
 
@@ -73,7 +73,7 @@ void loop() {
     return;
   }
   sendData();
-  delay(15);
+  delay(10);
 }
 
 void checkReadSwitch() {
@@ -138,7 +138,9 @@ void sendData() {
 
 void sendLast() {
   Serial.println("-lws 1 1 " + valuesToSend);
+  delay(3); // add a little delay to be sure line is sent successfully (because it's a long line)
   Serial.println("-ld 2 1 1 1 1");
   packageIndex = 0;
   valuesToSend = "";
+  
 }
