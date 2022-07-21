@@ -10,7 +10,6 @@
   -aas    [row:int] [column:int]
   -at     [axis:int] [title:str]
   -albl   [axis:int] [xlabel:str] [ylabel:str]
-  -sa     [time:float] [ori_axis:int] [synchronize_axis_1*:int] [synchronize_axis_2*:int] ...
   -clra   [axis:int]
   -ra     [axis:int]
   -al     [axis:int] [color*:str]
@@ -64,7 +63,7 @@ void setup() {
   //init_7(); // Example 7: Same as the 6th example, but using packet sending                               New commands: -lws
   //init_8(); // Example 8: Curve display with a maximum number of points                                   New commands: -mv
   //init_9(); // Example 9: Draw sine and show his derivative (Cosine)                                      New commands: -ld
-  //init_10(); // Example 10: Draw 4 axes with Sine and its 3 first derived (Cosine, -Sine, -Cosine)        New commands: -as 
+  //init_10(); // Example 10: Draw 4 axes with Sine and its 3 first derived (Cosine, -Sine, -Cosine)
   //init_11(); // Example 11: Clear a line                                                                  New commands: -clrl
   //init_12(); // Example 12: Remove a line                                                                 New commands: -rl
   //init_13(); // Example 13: Clear an axis                                                                 New commands: -clra
@@ -473,12 +472,7 @@ void init_10() {
   Serial.println("-cl 2 1 #348ABD");
   Serial.println("-cl 3 1 #988ED5");
   Serial.println("-cl 4 1 #FBC15E");
-
-  // After testing, you may notice that each axis adapts its size to display the curve.
-  // Due to the difference in the number of points between each curve, there is a shift of the axes. (More visible with the 4 x 1 design)
-  // You can use the following command to synchronize the dimension of the abscissa of all specified axes with respect to a reference axis.
-  // Serial.println("-sa 5 1 2 3 4"); // Axes 2, 3, and 4 are synchronized to axis 1, refreshing every 5 seconds
-  }
+}
 
 void example_10() {
   timeElapsed = millis() / 1000.0;

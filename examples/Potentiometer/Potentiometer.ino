@@ -113,7 +113,7 @@ void sendNew() {
   }
   startTimeResetRequested = true;
   Serial.println("-n 1");
-  Serial.println("-mv 300");
+  //Serial.println("-mv 300");
   Serial.println("-aa 211 Potentiometer_position Time_(ms) Position");
   Serial.println("-aa 212 Potentiometer_variation Time_(ms) Varation");
   Serial.println("-al 1");
@@ -121,7 +121,6 @@ void sendNew() {
   Serial.println("-cl 2 1 #1F85DE");
   Serial.println("-ml 1 1 None");
   Serial.println("-ml 2 1 None");
-  Serial.println("-sa 2 1 2");
   Serial.println("-h Time_(ms) Position");
 }
 

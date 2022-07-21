@@ -323,20 +323,20 @@ def read():
         case "-albl":
             utils.set_axis_label(get_axis(fig, data[1]), data[2], data[3])
 
-        case "-sa":
-            ori_axis = get_axis(fig, data[2])
-            if data[1] == -1:
-                remove_synchronizer_on(ori_axis)
-            else:
-                axes_index = data[3] if len(data[3]) != 0 else list(range(1, len(fig.axes) + 1)).remove(data[2])
-                axes = []
-                for i in axes_index:
-                    axes.append(get_axis(fig, i))
-                pass
-                if data[1] == 0:
-                    utils.synchronize_axes(ori_axis, axes)
-                else:
-                    axes_synchronizer.append(AxesSynchronizer(data[1], ori_axis, axes))
+        # case "-sa":
+        #     ori_axis = get_axis(fig, data[2])
+        #     if data[1] == -1:
+        #         remove_synchronizer_on(ori_axis)
+        #     else:
+        #         axes_index = data[3] if len(data[3]) != 0 else list(range(1, len(fig.axes) + 1)).remove(data[2])
+        #         axes = []
+        #         for i in axes_index:
+        #             axes.append(get_axis(fig, i))
+        #         pass
+        #         if data[1] == 0:
+        #             utils.synchronize_axes(ori_axis, axes)
+        #         else:
+        #             axes_synchronizer.append(AxesSynchronizer(data[1], ori_axis, axes))
 
         case "-clra":
             utils.clear_axis(get_axis(fig, data[1]))

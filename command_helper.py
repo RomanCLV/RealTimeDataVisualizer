@@ -24,7 +24,7 @@ def get_command_list():
         "-aas",
         "-at",
         "-albl",
-        "-sa",
+        # "-sa",
         "-clra",
         "-ra",
         "-al",
@@ -120,23 +120,23 @@ def get_command_details(command: str):
             arg = "[axis:int] [xlabel:str] [ylabel:str]"
             examples = "-albl 1 my_x_label my_y_label   => Set the labels of axis 1 as 'my x label' and 'my y label'."
 
-        case "-sa":
-            name = "Synchronize Axes"
-            description = "Allow to synchronize the dimension of the abscissa of all specified axes with respect to a reference axis.\n" \
-                          "Set the synchronization time (in seconds) to loop.\n" \
-                          "Set it to 0 to do it only once.\n" \
-                          "Set it to -1 to stop the loop.\n" \
-                          "Axes to synchronize must be different than the reference axis.\n" \
-                          "If no axis is specified, all axes will be synchronized to the reference axis.\n" \
-                          "No limit."
-            arg = "[time:float] [ori_axis:int] [synchronize_axis_1*:int] [synchronize_axis_2*:int] ..."
-            examples = "-sa 0 1 2 3   => Axes 2 and 3 are synchronized on axis 1, only once.\n" \
-                       "-sa 1 1 2 3   => Axes 2 and 3 are synchronized on axis 1, every 1 second.\n" \
-                       "-sa 2.5 1     => All existing axes are selected to be synchronized on axis 1, every 2.5 seconds.\n" \
-                       "You can start many synchronizations:\n-sa 2 1 2\n-sa 3 3 4\n" \
-                       "=> Axis 2 is synchronized with axis 1, every 2 seconds, while axis 4 is synchronized with axis 3, every 3 seconds.\n" \
-                       "-sa -1 1      => Stop the synchronization with axis 1. Other synchronizations on other axes are not affected.\n" \
-                       "-sa -1 1 2    => Stop the synchronization with axis 1, only for axis 2."
+        # case "-sa":
+        #     name = "Synchronize Axes"
+        #     description = "Allow to synchronize the dimension of the abscissa of all specified axes with respect to a reference axis.\n" \
+        #                   "Set the synchronization time (in seconds) to loop.\n" \
+        #                   "Set it to 0 to do it only once.\n" \
+        #                   "Set it to -1 to stop the loop.\n" \
+        #                   "Axes to synchronize must be different than the reference axis.\n" \
+        #                   "If no axis is specified, all axes will be synchronized to the reference axis.\n" \
+        #                   "No limit."
+        #     arg = "[time:float] [ori_axis:int] [synchronize_axis_1*:int] [synchronize_axis_2*:int] ..."
+        #     examples = "-sa 0 1 2 3   => Axes 2 and 3 are synchronized on axis 1, only once.\n" \
+        #                "-sa 1 1 2 3   => Axes 2 and 3 are synchronized on axis 1, every 1 second.\n" \
+        #                "-sa 2.5 1     => All existing axes are selected to be synchronized on axis 1, every 2.5 seconds.\n" \
+        #                "You can start many synchronizations:\n-sa 2 1 2\n-sa 3 3 4\n" \
+        #                "=> Axis 2 is synchronized with axis 1, every 2 seconds, while axis 4 is synchronized with axis 3, every 3 seconds.\n" \
+        #                "-sa -1 1      => Stop the synchronization with axis 1. Other synchronizations on other axes are not affected.\n" \
+        #                "-sa -1 1 2    => Stop the synchronization with axis 1, only for axis 2."
 
         case "-clra":
             name = "Clear Axis"
@@ -339,23 +339,23 @@ def validation(data_read: str):
             else:
                 err = build_error(data[0], data_read)
 
-        case "-sa":
-            if not (len(data) >= 3 and parse_float(data, [1]) and parse_int(data, range(2, len(data))) and data[2] >= 1):
-                err = build_error(data[0], data_read)
-                return err, data
-
-            if data[1] < 0 and data[1] != -1.0:
-                err = build_error(data[0], data_read)
-                return err, data
-            axes = []
-            for i in range(3, len(data)):
-                if data[i] < 1 or data[i] == data[2]:
-                    err = build_error(data[0], data_read)
-                    return err, data
-                else:
-                    axes.append(data[i])
-
-            data = [data[0], data[1], data[2], axes]
+        # case "-sa":
+        #     if not (len(data) >= 3 and parse_float(data, [1]) and parse_int(data, range(2, len(data))) and data[2] >= 1):
+        #         err = build_error(data[0], data_read)
+        #         return err, data
+        #
+        #     if data[1] < 0 and data[1] != -1.0:
+        #         err = build_error(data[0], data_read)
+        #         return err, data
+        #     axes = []
+        #     for i in range(3, len(data)):
+        #         if data[i] < 1 or data[i] == data[2]:
+        #             err = build_error(data[0], data_read)
+        #             return err, data
+        #         else:
+        #             axes.append(data[i])
+        #
+        #     data = [data[0], data[1], data[2], axes]
 
         case "-clra":
             if not (len(data) == 2 and parse_int(data, [1]) and data[1] >= 1):

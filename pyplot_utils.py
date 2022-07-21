@@ -212,7 +212,7 @@ def add_values(line, x, y, max_values=None, margin_coef=0.95):
             if diff > 0:    # too many values
                 x_data = x_data[diff:]
                 y_data = y_data[diff:]
-
+    """
     x_min = np.min(x_data)
     x_max = np.max(x_data)
     y_min = np.min(y_data)
@@ -244,8 +244,8 @@ def add_values(line, x, y, max_values=None, margin_coef=0.95):
         else:                                               # both
             line.axes.set_xlim([x_min - std, x_max + std])
 
-    # TODO: Auto resize on y axis
     # check y bounds
+    # TODO: Resize y bounds better
     if y_min <= y_lim_min or y_max >= y_lim_max:
         std = np.std(y_data)
         if std == 0:
@@ -257,12 +257,13 @@ def add_values(line, x, y, max_values=None, margin_coef=0.95):
             line.axes.set_ylim([y_lim_min - std * marge_bound_coef, y_max + std])
         else:                                               # both
             line.axes.set_ylim([y_min - std, y_max + std])
+    """
 
     line.set_xdata(x_data)
     line.set_ydata(y_data)
 
-    # line.axes.relim()                  # recompute the data limits
-    # line.axes.autoscale_view()         # automatic axis scaling
+    line.axes.relim()                  # recompute the data limits
+    line.axes.autoscale_view()         # automatic axis scaling
 
 
 def get_line_derivative(line, degree=1):
