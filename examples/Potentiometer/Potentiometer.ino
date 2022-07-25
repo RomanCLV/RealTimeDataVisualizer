@@ -113,7 +113,7 @@ void sendNew() {
   }
   startTimeResetRequested = true;
   Serial.println("-n 1");
-  //Serial.println("-mv 300");
+  Serial.println("-mv 300");
   Serial.println("-aa 211 Potentiometer_position Time_(ms) Position");
   Serial.println("-aa 212 Potentiometer_variation Time_(ms) Varation");
   Serial.println("-al 1");
@@ -138,8 +138,7 @@ void sendData() {
 void sendLast() {
   Serial.println("-lws 1 1 " + valuesToSend);
   delay(3); // add a little delay to be sure line is sent successfully (because it's a long line)
-  Serial.println("-ld 2 1 1 1 1");
+  Serial.println("-ld 1 1 2 1");
   packageIndex = 0;
   valuesToSend = "";
-  
 }

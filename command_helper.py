@@ -9,7 +9,6 @@ Get the list of available commands, their details, and other actions, using a co
 """
 
 import argparse
-import io
 import os
 import subprocess
 import commands
@@ -30,6 +29,7 @@ COMMANDS_LIST = {
     "-al": commands.AddLineCommand(),
     "-cl": commands.ColorLineCommand(),
     "-ml": commands.MarkerLineCommand(),
+    "-sl": commands.StyleLineCommand(),
     "-clrl": commands.ClearLineCommand(),
     "-rl": commands.RemoveLineCommand(),
     "-h": commands.HeaderCommand(),
@@ -80,7 +80,7 @@ def validation(data_read: str):
         if data_build is None:
             err = commands.build_error(COMMANDS_LIST[data[0]], data_read)
     else:
-        err = f"Command not found: {data[0]}\nTo get the available commands, use: command_helper.py -l"
+        err = f"Command not found: {data[0]}\nTo get the available commands, use: python command_helper.py -l"
     return err, data_build
 
 
@@ -91,9 +91,7 @@ def main():
     if args.list:
         col_format = "{:<10}{:}"
         for command in get_commands():
-            details_to_print = (command.code, command.arg, "\t| " + command.note)\
-                if command.note else (command.code, command.arg)
-            print(col_format.format(*details_to_print))
+            print(col_format.format(*(command.code, command.arg)))
 
     elif args.details:
         command = get_command(f"-{args.details}")
@@ -129,8 +127,8 @@ def main():
             for command in get_commands():
                 code_list.append(command.code)
                 arg_list.append(command.arg)
-                if command.note:
-                    arg_list[-1] += f" | {command.note}"
+                if command.arg_info:
+                    arg_list[-1] += f"\t| {command.arg_info}"
 
             with open(file_path, "w") as file:
                 for x in zip(code_list, arg_list):

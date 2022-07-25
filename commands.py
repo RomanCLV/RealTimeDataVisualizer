@@ -11,6 +11,8 @@ Contains all commands classes.
 import abc
 from abc import ABC
 
+import pyplot_utils
+
 
 class Command(metaclass=abc.ABCMeta):
     """Command class"""
@@ -20,13 +22,15 @@ class Command(metaclass=abc.ABCMeta):
                  code=None,
                  arg=None,
                  examples=None,
-                 note=None):
+                 note=None,
+                 arg_info=None):
         self.name = name
         self.description = description
         self.code = code
         self.arg = arg
         self.examples = examples
         self.note = note
+        self.arg_info = arg_info
 
     @abc.abstractmethod
     def build_data(self, data):
@@ -350,14 +354,45 @@ class MarkerLineCommand(Command, ABC):
             name="Marker Line",
             description="Set the line's marker.\n" +
                         "Select a line (>= 1) in an axis (>= 1).\n" +
-                        "Default value: \"-o\"\n" +
+                        f"Default value: \"{pyplot_utils.default_marker}\"\n" +
                         "If you want to remove the marker, use \"None\".",
             code="-ml",
             arg="[axis:int] [line:int] [marker:str]",
             examples="-ml 1 1 None   => Remove the marker of line 1 in axis 1.\n" +
-                     "-ml 1 2 *      => The marker of line 2 in axis 1 will be a star.\n" +
-                     "-ml 1 2 -*     => The marker of line 2 in axis 1 will be a star with a line between each point.",
-            note="See this to know more about marker: https://matplotlib.org/stable/api/markers_api.html"
+                     "-ml 1 2 *      => The marker of line 2 in axis 1 will be a star.",
+            note="See this to know more about marker: https://matplotlib.org/stable/api/markers_api.html",
+            arg_info="See this to know more about marker: https://matplotlib.org/stable/api/markers_api.html"
+        )
+
+    def build_data(self, data):
+        if len(data) == 4 and parse_int(data, [1, 2]) and data[1] >= 1 and data[2] >= 1:
+            return data
+        return None
+
+
+class StyleLineCommand(Command, ABC):
+    """Style line command class"""
+    def __init__(self):
+        super().__init__(
+            name="Style Line",
+            description="Set the line's style.\n" +
+                        "Select a line (>= 1) in an axis (>= 1).\n" +
+                        f"Default value: \"{pyplot_utils.default_style}\"\n" +
+                        "If you want to remove the marker, use \"None\".\n" +
+                        "Available values:\n" +
+                        "==========================================  =================\n" +
+                        "linestyle                                   description      \n" +
+                        "==========================================  =================\n" +
+                        "'-'    or 'solid'                           solid line       \n" +
+                        "'--'   or 'dashed'                          dashed line      \n" +
+                        "'-.'   or 'dash-dot'                        dash-dotted line \n" +
+                        "':'    or 'dotted'                          dotted line      \n" +
+                        "'none' or 'None'                            draw nothing     \n" +
+                        "==========================================  =================",
+            code="-sl",
+            arg="[axis:int] [line:int] [style:str]",
+            examples="-sl 1 1 None   => Line 1 in axis 1 has no style.\n" +
+                     "-sl 1 2 --     => The style of line 2 in axis 1 will be a dashed line."
         )
 
     def build_data(self, data):
@@ -494,7 +529,8 @@ class LineCommand(Command, ABC):
             examples="-l 2 1 0 2 1 2.5 2 3     => Add values (0, 2), (1, 2.5) and (2, 3) to line 1 in axis 2.\n" +
                      "-l 2 1 0 2 ; 1 2.5 ; 2 3 => Exactly the same result as the previous example, but using ';' to separate data.",
             note="The character used to indicate a new pair of data is \";\" or a simple space \" \".\n" +
-                 "No limit."
+                 "No limit.",
+            arg_info="The character used to indicate a new pair of data is \";\" or a simple space \" \"."
         )
 
     def build_data(self, data):
@@ -595,6 +631,7 @@ class LineDerivationCommand(Command, ABC):
                 return None
         else:
             return None
+        return data
 
 
 def build_error(command, data_read: str):

@@ -323,20 +323,20 @@ def read():
         case "-albl":
             utils.set_axis_label(get_axis(fig, data[1]), data[2], data[3])
 
-        # case "-sa":
-        #     ori_axis = get_axis(fig, data[2])
-        #     if data[1] == -1:
-        #         remove_synchronizer_on(ori_axis)
-        #     else:
-        #         axes_index = data[3] if len(data[3]) != 0 else list(range(1, len(fig.axes) + 1)).remove(data[2])
-        #         axes = []
-        #         for i in axes_index:
-        #             axes.append(get_axis(fig, i))
-        #         pass
-        #         if data[1] == 0:
-        #             utils.synchronize_axes(ori_axis, axes)
-        #         else:
-        #             axes_synchronizer.append(AxesSynchronizer(data[1], ori_axis, axes))
+        case "-sa":
+            ori_axis = get_axis(fig, data[2])
+            if data[1] == -1:
+                remove_synchronizer_on(ori_axis)
+            else:
+                axes_index = data[3] if len(data[3]) != 0 else list(range(1, len(fig.axes) + 1)).remove(data[2])
+                axes = []
+                for i in axes_index:
+                    axes.append(get_axis(fig, i))
+                pass
+                if data[1] == 0:
+                    utils.synchronize_axes(ori_axis, axes)
+                else:
+                    axes_synchronizer.append(AxesSynchronizer(data[1], ori_axis, axes))
 
         case "-clra":
             utils.clear_axis(get_axis(fig, data[1]))
@@ -356,6 +356,9 @@ def read():
 
         case "-ml":
             utils.set_marker(get_line(fig, data[1], data[2]), data[3])
+
+        case "-sl":
+            utils.set_style(get_line(fig, data[1], data[2]), data[3])
 
         case "-clrl":
             utils.clear_line(get_line(fig, data[1], data[2]))
@@ -382,7 +385,7 @@ def read():
             utils.add_values(get_line(fig, data[1], data[2]), data[3], data[4], max_values)
 
         case "-lws":
-            write_datas(list(map(lambda dt: [str(dt[0]), str(dt[1])], data[3])))
+            write_datas(list(map(lambda item: [str(item[0]), str(item[1])], data[3])))
             x = []
             y = []
 
@@ -392,8 +395,8 @@ def read():
             utils.add_values(get_line(fig, data[1], data[2]), x, y, max_values)
 
         case "-ld":
-            utils.compute_derivative(get_line(fig, data[3], data[4]),
-                                     get_line(fig, data[1], data[2]),
+            utils.compute_derivative(get_line(fig, data[1], data[2]),
+                                     get_line(fig, data[3], data[4]),
                                      max_values,
                                      data[5] if len(data) == 6 else 1)
 

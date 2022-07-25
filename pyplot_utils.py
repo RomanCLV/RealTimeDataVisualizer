@@ -15,7 +15,8 @@ import numpy as np
 # use ggplot style for more sophisticated visuals
 plt.style.use('ggplot')
 
-default_marker = "-o"
+default_style = "-"
+default_marker = "o"
 
 
 def init_plot():
@@ -170,7 +171,7 @@ def add_line(axis, x_value=None, y_value=None):
         x_value = []
     if y_value is None:
         y_value = []
-    return axis.plot(x_value, y_value, default_marker, alpha=0.8)[0]
+    return axis.plot(x_value, y_value, f"{default_style}{default_marker}", alpha=0.8)[0]
 
 
 def remove_line(line):
@@ -191,14 +192,38 @@ def set_color(line, color):
 
 def set_marker(line, marker):
     """Set the line's marker"""
-    line.set_marker(None if marker == "None" else marker)
+    if marker is None or marker == "None" or marker == "none":
+        marker = "None"
+    line.set_marker(marker)
+
+
+def set_style(line, style):
+    """Set the line's style"""
+    if style is None or style == "None" or style == "none":
+        style = "None"
+    line.set_linestyle(style)
 
 
 def add_values(line, x, y, max_values=None, margin_coef=0.95):
-    """Add values to a line"""
+    """
+    Add values to a line.
+    :param line: The given line
+    :param x: float or array of float
+    :param y: float or array of float
+    :param max_values: Max values in the line
+    :param margin_coef: Not used
+    """
+
+    if isinstance(x, float) or isinstance(x, int):
+        x = [x]
+    if isinstance(y, float) or isinstance(y, int):
+        y = [y]
+
+    if type(x) is not type(y):
+        raise ValueError(f"x and y must be of the same type! x type: {type(x)} | y type: {type(y)}")
 
     if len(x) != len(y):
-        raise ValueError(f"x and y datas required the same length! x len = {len(x)} | y len = {len(y)}")
+        raise ValueError(f"x and y datas required the same length! x length : {len(x)} | y length: {len(y)}")
 
     x_data = np.append(line.get_xdata(), x)
     y_data = np.append(line.get_ydata(), y)

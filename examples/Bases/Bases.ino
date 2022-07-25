@@ -4,7 +4,7 @@
 -n        [ruf*:bool]
 -ruf      [ruf:bool]
 -s        [separator:str]
--dc       [max_values:int]
+-dc       [character:str]
 -mv       [max_values:int]
 -aa       [rcp:int] [title*:str] [xlabel*:str] [ylabel*:str]
 -aas      [row:int] [column:int]
@@ -14,7 +14,8 @@
 -ra       [axis:int]
 -al       [axis:int] [color*:str]
 -cl       [axis:int] [line:int] [color:str]
--ml       [axis:int] [line:int] [marker:str] | See this to know more about marker: https://matplotlib.org/stable/api/markers_api.html
+-ml       [axis:int] [line:int] [marker:str]  | See this to know more about marker: https://matplotlib.org/stable/api/markers_api.html
+-sl       [axis:int] [line:int] [style:str]
 -clrl     [axis:int] [line:int]
 -rl       [axis:int] [line:int]
 -h        [header1] [header2] [header3]  ... 
@@ -25,9 +26,7 @@
 -lws      [axis:int] [line:int] [xdata1:float] [ydata1:float] ; [xdata2:float] [ydata2:float] ; [xdata3:float] [ydata3:float] ; ...
 -ld       [oriAxis:int] [oriLine:int] [derivedAxis:int] [derivedLine:int] [degree*:int]
 
-
 */
-
 
 /*
  If data contains space, replace it by _ : Time (ms) => Time_(ms) ; my handsome title => my_handsome_title
@@ -55,9 +54,12 @@ void setup() {
   value = 0.0;
   interval = 100; // change in example 4, 5, 7, 8, 10
   Serial.println("Initialized...");
-  init_1(); // Example 1: Write one line into the save file.                                              New commands: -n, -ruf, -s, -dc, -h, -w
-  //init_2(); // Example 2: Write many lines into the save file.                                            New commands: -ws
-  //init_3(); // Example 3: Create a GUI with one axis and one line                                         New commands: -aa, -at, -albl, -al, -cl, -ml, -l
+
+  // For all the examples, only the Arduino board is needed. No specific installation is required.
+  
+  //init_1(); // Example 1: Write line by line into the save file.                                          New commands: -n, -ruf, -s, -dc, -h, -w
+  //init_2(); // Example 2: Write many lines in a row into the save file.                                   New commands: -ws
+  //init_3(); // Example 3: Create a GUI with one axis and one line                                         New commands: -aa, -at, -albl, -al, -cl, -ml, -sl, -l
   //init_4(); // Example 4: Create a GUI with two axis and one line in each axis, to draw Sine and Cosine   New commands: -aas
   //init_5(); // Example 5: Same as the 4th example, but using packet sending
   //init_6(); // Example 6: Write and draw data                                                             New commands: -lw
@@ -65,21 +67,23 @@ void setup() {
   //init_8(); // Example 8: Curve display with a maximum number of points                                   New commands: -mv
   //init_9(); // Example 9: Draw sine and show his derivative (Cosine)                                      New commands: -ld
   //init_10(); // Example 10: Draw 4 axes with Sine and its 3 first derived (Cosine, -Sine, -Cosine)
-  //init_11(); // Example 11: Clear a line                                                                  New commands: -clrl
-  //init_12(); // Example 12: Remove a line                                                                 New commands: -rl
-  //init_13(); // Example 13: Clear an axis                                                                 New commands: -clra
-  //init_14(); // Example 14: Remove an axis                                                                New commands: -ra
+  init_11(); // Example 11: Same as the 10th example, but all in the same axis.
+  //init_12(); // Example 12: Clear a line                                                                  New commands: -clrl
+  //init_13(); // Example 13: Remove a line                                                                 New commands: -rl
+  //init_14(); // Example 14: Clear an axis                                                                 New commands: -clra
+  //init_15(); // Example 15: Remove an axis                                                                New commands: -ra
 
   /*
     You now have enough knowledges to build your own Visualizer.
     Of course, it is up to you to adapt according to the performance of your computer and your project.
-    The delay in the display of the curves is most often due to the sending of long messages, to a high frequency of sending and to the request of the viewer (to display the derivative, draw many lines, or using a massive marker).
+    The delay in the display of the curves is most often due to the sending of long messages, to a high frequency of sending and to the request of the viewer (to display the derivative, draw many lines, or using a massive marker, ...).
     It is up to you to test the best interval for sending data, the size of the message, or the markers of the curves...
+    For some laptops, charging the battery can improve performance. 
   */
 }
 
 void loop() {
-  example_1();
+  //example_1();
   //example_2();
   //example_3();
   //example_4();
@@ -89,15 +93,16 @@ void loop() {
   //example_8();
   //example_9();
   //example_10();
-  //example_11();
+  example_11();
   //example_12();
   //example_13();
   //example_14();
+  //example_15();
   delay(interval);
 }
 
 void init_1() {
-  // Example 1: Write one line into the save file
+  // Example 1: Write line by line into the save file
   
   // First command to send before writing or displaying a graphic:
   Serial.println("-n");
@@ -105,7 +110,7 @@ void init_1() {
   // If you don't, the main.py script will write "Not initialized".
 
   // To remove all unused files created at the end of the run, or containing only headers, you can set the RemoveUnusedFiles to true using:
-  Serial.println("-ruf true"); // Can use a non-zero integer, true or True
+  Serial.println("-ruf false"); // Can use a non-zero integer, true or True
   
   // The last two commands can be combined into one with :
   //Serial.println("-n 1");
@@ -113,10 +118,10 @@ void init_1() {
   // All lines with 'Option' are not required and can be removed.
   
   // Option: You can specify the separator between the data in the save file. The default value is ';'.
-  Serial.println("-s ;");
+  //Serial.println("-s ;");
   
   // Option: You can specify the decimal character used in the save file. The default value is '.'.
-  Serial.println("-dc ,"); // To use ',' instead of '.'
+  //Serial.println("-dc ,"); // To use ',' instead of '.'
   
   // Option: If you want, you can also write the header in this new file.
   Serial.println("-h Time_(s) Sine");
@@ -124,13 +129,13 @@ void init_1() {
 }
 
 void example_1() {
-  // Write on line into the save file : a time and a sine value with 6 digit of precision.
+  // Write line by line into the save file : a time and a sine value with 6 digit of precision.
     
   timeElapsed = millis() / 1000.0;
   value = sin(timeElapsed);
   Serial.println("-w " + String(timeElapsed) + " " + String(value, 6));
 
-  // If the decimal character is '.' and the sepatator is ';', the result in the save file will be:
+  // If the decimal character is ',' and the sepatator is ';', the result in the save file will be:
   // 0,00;0,000000
   // 0,51;0,489922
   // ...
@@ -138,7 +143,7 @@ void example_1() {
 
 
 void init_2() {
-  // Example 2: Write many lines into the save file
+  // Example 2: Write many lines in a row into the save file
   
   packetSize = 5; // Want to send 5 lines
   packetCount = 0;
@@ -150,16 +155,17 @@ void init_2() {
 }
 
 void example_2() {
-  // Write many lines into the save file : a time and a sine value with 6 digit of precision.
+  // Write many lines in a row into the save file : a time and a sine value with 6 digit of precision.
 
   timeElapsed = millis() / 1000.0;
   value = sin(timeElapsed);
   dataToSend += " " + String(timeElapsed) + " " + String(value, 6) + " ;"; // To indicate the end of the line, use ';'.
   packetCount++;
   if (packetCount >= packetSize) {
-     packetCount = 0;
-     Serial.println("-ws" + dataToSend);
-     dataToSend = "";
+    // Send the command only when the number of packets is reached 
+    packetCount = 0;
+    Serial.println("-ws" + dataToSend);
+    dataToSend = "";
   }
 }
 
@@ -185,8 +191,8 @@ void init_3() {
   Serial.println("-al 1");
   
   // Option: You can set the color of the first line in the first axis
-  //Serial.println("-cl 1 1 #FFD700");  // using a hexadecimal code
-  //Serial.println("-cl 1 1 gold");     // using a color name
+  // Serial.println("-cl 1 1 #FFD700");  // using a hexadecimal code
+  // Serial.println("-cl 1 1 gold");     // using a color name
 
   /*
     Default line color:
@@ -204,11 +210,27 @@ void init_3() {
   */
   
   // Option: You can set the marker of the first line in the first axis. Default value is "o". // See this to know more about marker: https://matplotlib.org/stable/api/markers_api.html
-  Serial.println("-ml 1 1 *"); // Use "*" instead of "o".
+  // Serial.println("-ml 1 1 *"); // Use "*" instead of "o".
+
+  // Option: You can set the style of the first line in the first axis. Default value is "-".
+  // Serial.println("-sl 1 1 -."); // Use "-." instead of "-".
+
+  /*
+  Available styles:
+  ==========================================  =================
+  linestyle                                   description
+  ==========================================  =================
+  '-'    or 'solid'                           solid line
+  '--'   or 'dashed'                          dashed line
+  '-.'   or 'dash-dot'                        dash-dotted line
+  ':'    or 'dotted'                          dotted line
+  'none' or 'None'                            draw nothing
+  ==========================================  =================
+  */
 
   // Add many values to the first line in the first axis
-  Serial.println("-l 1 1 0 0 1 2 2 6");
-  //Serial.println("-l 1 1 0 0 ; 1 2 ; 2 6"); // You can also use ";" to separate data pairs.
+  // Serial.println("-l 1 1 0 0 1 2 2 6");
+  Serial.println("-l 1 1 0 0 ; 1 2 ; 2 6"); // You can also use ";" to separate data pairs.
 }
 
 void example_3() {
@@ -268,7 +290,8 @@ void example_4() {
 
 void init_5() {
   // Example 5: Same as the 4th example, but using packet sending.
-
+  // You can easy see that sendind message is a bigger process.
+  
   packetSize = 5; // Want to send 5 lines
   packetCount = 0;
   dataToSend = "";
@@ -313,6 +336,8 @@ void init_6() {
   Serial.println("-h Time_(s) Sine");
   Serial.println("-aa 111 Sine X Y");
   Serial.println("-al 1");
+  Serial.println("-ml 1 1 None");
+  Serial.println("-sl 1 1 -.");
 }
 
 void example_6() {
@@ -321,7 +346,7 @@ void example_6() {
   dataToSend = String(timeElapsed) + " " + String(value, 6);
   // Send two commands
   //Serial.println("-w " + dataToSend); // write one line
-  //Serial.println("-l 1 1 " + dataToSend); // add this value to the line
+  //Serial.println("-l 1 1 " + dataToSend); // add this value to the line 1 in axis 1
   // Send both commands in one
   Serial.println("-lw 1 1 " + dataToSend);
 }
@@ -367,7 +392,7 @@ void init_8() {
   Serial.println("-mv 200");
   Serial.println("-aa 111");
   Serial.println("-al 1");
-  //Serial.println("-ml 1 1 None");
+  Serial.println("-ml 1 1 None");
 }
 
 void example_8() {
@@ -419,8 +444,8 @@ void example_9() {
     
     if (timeElapsed >= duration) {
       // Draw in the axis 1 line 2, the derived of the axis 1 line 1
-      Serial.println("-ld 1 2 1 1");
-      //Serial.println("-ld 1 2 1 1 1"); // Degree can be set optionnaly. Default is 1. 0 Return the original curve. Under will return an error. The degree can be 1, 2, 3, ...
+      Serial.println("-ld 1 1 1 2");
+      //Serial.println("-ld 1 1 1 2 1"); // Degree can be set optionnaly. Default is 1. 0 Return the original curve. Under will return an error. The degree can be 1, 2, 3, ...
     }
   }
   else {
@@ -434,8 +459,8 @@ void example_9() {
       
       if (timeElapsed >= duration) {
         // Draw in the axis 1 line 2, the derived of the axis 1 line 1
-        Serial.println("-ld 1 2 1 1");
-        //Serial.println("-ld 1 2 1 1 1"); // Degree can be set optionnaly. Default is 1. 0 Return the original curve. Under will return an error. The degree can be 1, 2, 3, ...
+        Serial.println("-ld 1 1 1 2");
+        //Serial.println("-ld 1 1 1 2 1"); // Degree can be set optionnaly. Default is 1. 0 Return the original curve. Under will return an error. The degree can be 1, 2, 3, ...
       }
     }
   }
@@ -479,21 +504,58 @@ void example_10() {
   timeElapsed = millis() / 1000.0;
   value = sin(timeElapsed);
   Serial.println("-l 1 1 " + String(timeElapsed, 5) + " " + String(value, 6));
-  Serial.println("-ld 2 1 1 1 1");
-  Serial.println("-ld 3 1 1 1 2");
-  Serial.println("-ld 4 1 1 1 3");
+  
+  // first way to draw derivative lines
+  Serial.println("-ld 1 1 2 1 1"); // compute the first derivative
+  Serial.println("-ld 1 1 3 1 2"); // compute the first derivative and a second time to get the second derivative
+  Serial.println("-ld 1 1 4 1 3"); // compute the first derivative, then the second, and finally compute the third derivative 
+  /*
+    This method is working but can be optimized.
+    The algorithm used to calculate a derivative uses recursion to calculate when the degree is greater than 1.
+    Here, when we ask for the second derivative, we recalculate the first derivative to calculate the second. 
+    But the first one has already been calculated in the previous line. So we make calculations that have already been done. Same thing for the third derivative.
+    
+    To optimize this, we can use the derivative lines to calculate only first derivatives.
+    Of course this optimization is possible because each derivative is displayed. 
+    If you only need the main line and its second derivative, without displaying the first derivative, you can use the above method.
+  */
+  // second way to draw derivative lines
+  //Serial.println("-ld 1 1 2 1");
+  //Serial.println("-ld 2 1 3 1");
+  //Serial.println("-ld 3 1 4 1");
+}
+
+void init_11() {
+  // Example 11: Same as the 10th example, but all in the same axis.
+  Serial.println("-n");
+  // Serial.println("-mv 50");
+  Serial.println("-aa 111");
+  for (int i = 0; i < 4; i++) {
+    Serial.println("-al 1");
+    Serial.println("-ml 1 " + String(i + 1) + " none");
+  }
+  Serial.println("-cl 1 4 #FBC15E");
+}
+
+void example_11() {
+  timeElapsed = millis() / 1000.0;
+  value = sin(timeElapsed);
+  Serial.println("-l 1 1 " + String(timeElapsed, 3) + " " + String(value, 6));
+  Serial.println("-ld 1 1 1 2");
+  Serial.println("-ld 1 2 1 3");
+  Serial.println("-ld 1 3 1 4");
 }
 
 
-void init_11() {
-  // Example 11: Clear a line
+void init_12() {
+  // Example 12: Clear a line
   duration = 3; // Clear the line every 3 seconds
   Serial.println("-n 1");
   Serial.println("-aa 111");
   Serial.println("-al 1");
 }
 
-void example_11() {
+void example_12() {
   timeElapsed = millis() / 1000.0;
   if (int(timeElapsed) % duration == 0) {
     Serial.println("-clrl 1 1"); // Clear the first line in the first axis
@@ -504,8 +566,8 @@ void example_11() {
 }
 
 
-void init_12() {
-  // Example 12: Remove a line
+void init_13() {
+  // Example 13: Remove a line
   Serial.println("-n 1");
   Serial.println("-aa 111");
   Serial.println("-al 1");
@@ -522,13 +584,13 @@ void init_12() {
   Serial.println("-l 1 2 4 3.25");
 }
 
-void example_12() {
+void example_13() {
   // do nothing
 }
 
 
-void init_13() {
-  // Example 13: Clear an axis
+void init_14() {
+  // Example 14: Clear an axis
   Serial.println("-n 1");
   Serial.println("-aa 111");
   Serial.println("-al 1");
@@ -548,13 +610,13 @@ void init_13() {
   //Serial.println("-l 1 1 0 0"); // Now, it will not raise any error
 }
 
-void example_13() {
+void example_14() {
   // do nothing
 }
 
 
-void init_14() {
-  // Example 14: Remove an axis
+void init_15() {
+  // Example 15: Remove an axis
   Serial.println("-n 1");
   Serial.println("-aas 2 2");
   for (int i = 1; i <= 4; i++) {
@@ -569,6 +631,6 @@ void init_14() {
   //Serial.println("-l 1 1 6 10"); // We can notice that Axis 2 is now Axis 1
 }
 
-void example_14() {
+void example_15() {
   // do nothing
 }
