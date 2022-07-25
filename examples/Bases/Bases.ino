@@ -1,29 +1,30 @@
 /*
   Commands resume, get using python command_helper.py -l :
 
-  -n      [ruf*:bool]
-  -ruf    [ruf:bool]
-  -s      [separator:str]
-  -dc     [character:str]
-  -mv     [max_values:int]
-  -aa     [rcp:int] [title*:str] [xlabel*:str] [ylabel*:str]
-  -aas    [row:int] [column:int]
-  -at     [axis:int] [title:str]
-  -albl   [axis:int] [xlabel:str] [ylabel:str]
-  -clra   [axis:int]
-  -ra     [axis:int]
-  -al     [axis:int] [color*:str]
-  -cl     [axis:int] [line:int] [color:str]
-  -ml     [axis:int] [line:int] [marker:str]  | See this to know more about marker: https://matplotlib.org/stable/api/markers_api.html
-  -clrl   [axis:int] [line:int]
-  -rl     [axis:int] [line:int]
-  -h      [header1] [header2] [header3]  ...
-  -w      [data1] [data2] [data3]  ...
-  -ws     [data11] [data12] [data13] ; [data21] [data22] [data23] ; [data31] [data32] ; ...
-  -l      [axis:int] [line:int] [xdata1:float] [ydata1:float] ; [xdata2:float] [ydata2:float] ; [xdata3:float] [ydata3:float] ; ... | With this command, ";" is not required. You can also use a simple space.
-  -lw     [axis:int] [line:int] [xdata:float] [ydata:float]
-  -lws    [axis:int] [line:int] [xdata1:float] [ydata1:float] ; [xdata2:float] [ydata2:float] ; [xdata3:float] [ydata3:float] ; ...
-  -ld     [oriAxis:int] [oriLine:int] [derivedAxis:int] [derivedLine:int] [degree*:int]
+-n        [ruf*:bool]
+-ruf      [ruf:bool]
+-s        [separator:str]
+-dc       [max_values:int]
+-mv       [max_values:int]
+-aa       [rcp:int] [title*:str] [xlabel*:str] [ylabel*:str]
+-aas      [row:int] [column:int]
+-at       [axis:int] [title:str]
+-albl     [axis:int] [xlabel:str] [ylabel:str]
+-clra     [axis:int]
+-ra       [axis:int]
+-al       [axis:int] [color*:str]
+-cl       [axis:int] [line:int] [color:str]
+-ml       [axis:int] [line:int] [marker:str] | See this to know more about marker: https://matplotlib.org/stable/api/markers_api.html
+-clrl     [axis:int] [line:int]
+-rl       [axis:int] [line:int]
+-h        [header1] [header2] [header3]  ... 
+-w        [data1] [data2] [data3]  ... 
+-ws       [data11] [data12] [data13] ; [data21] [data22] [data23] ; [data31] [data32] ; ... 
+-l        [axis:int] [line:int] [xdata1:float] [ydata1:float] ; [xdata2:float] [ydata2:float] ; [xdata3:float] [ydata3:float] ; ... | The character used to indicate a new pair of data is ";" or a simple space " ".
+-lw       [axis:int] [line:int] [xdata:float] [ydata:float]
+-lws      [axis:int] [line:int] [xdata1:float] [ydata1:float] ; [xdata2:float] [ydata2:float] ; [xdata3:float] [ydata3:float] ; ...
+-ld       [oriAxis:int] [oriLine:int] [derivedAxis:int] [derivedLine:int] [degree*:int]
+
 
 */
 
@@ -54,7 +55,7 @@ void setup() {
   value = 0.0;
   interval = 100; // change in example 4, 5, 7, 8, 10
   Serial.println("Initialized...");
-  //init_1(); // Example 1: Write one line into the save file.                                              New commands: -n, -ruf, -s, -dc, -h, -w
+  init_1(); // Example 1: Write one line into the save file.                                              New commands: -n, -ruf, -s, -dc, -h, -w
   //init_2(); // Example 2: Write many lines into the save file.                                            New commands: -ws
   //init_3(); // Example 3: Create a GUI with one axis and one line                                         New commands: -aa, -at, -albl, -al, -cl, -ml, -l
   //init_4(); // Example 4: Create a GUI with two axis and one line in each axis, to draw Sine and Cosine   New commands: -aas
@@ -78,7 +79,7 @@ void setup() {
 }
 
 void loop() {
-  //example_1();
+  example_1();
   //example_2();
   //example_3();
   //example_4();
