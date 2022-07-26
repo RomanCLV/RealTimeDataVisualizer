@@ -20,6 +20,7 @@ import command_helper as helper
 # Additional modules added in the __name__ == "__main__" bloc
 
 global run
+global display_elapsed_time
 global fig
 
 global is_connected
@@ -47,6 +48,7 @@ global axes_synchronizer
 def main():
     """The main function"""
     global run
+    global display_elapsed_time
     global fig
 
     global is_connected
@@ -73,6 +75,7 @@ def main():
     args = parser.parse_args()
 
     run = True
+    display_elapsed_time = False
     fig = None
 
     is_connected = False
@@ -125,6 +128,9 @@ def main():
             print(f"The communication port delay must be a non-null positive integer. Given: {args.delay}")
             input("Please press the Enter key to exit")
             exit(-1)
+
+    if args.timer:
+        display_elapsed_time = True
 
     print("Available ports selected:")
     for port in com_ports:
@@ -227,6 +233,7 @@ def read():
     """
     Read data from Arduino card
     """
+    global display_elapsed_time
     global fig
 
     global is_connected
@@ -332,7 +339,7 @@ def read():
                 axes = []
                 for i in axes_index:
                     axes.append(get_axis(fig, i))
-                pass
+
                 if data[1] == 0:
                     utils.synchronize_axes(ori_axis, axes)
                 else:
@@ -402,6 +409,13 @@ def read():
 
         case _:
             log(f"Unknown {data_decoded}")
+
+    if display_elapsed_time:
+        print("{:}\t{:<10}\t{:}".format(
+            "Elapsed time (ms):",
+            round((time.time() - last_read_data_time) * 1000.0, 3),
+            data_decoded if len(data_decoded) < 20 else (data_decoded[:20] + "...")
+        ))
 
     if update_title_requested and fig is not None:
         utils.set_title(fig, file_path)
@@ -629,4 +643,5 @@ if __name__ == "__main__":
     parser.add_argument("-f", "--file", type=str, help="set the file containing all communication ports.")
     parser.add_argument("-d", "--delay", type=int,
                         help="set a delay (in seconds) to automatically change the communication port if no data is received, even if the connection to the port was successful.")
+    parser.add_argument("-t", "--timer", action="store_true", help="display the elapsed time to process a received command")
     main()

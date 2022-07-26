@@ -31,6 +31,9 @@ You can also use two options to specify ports using the CLI.
 Both commands can be used at the same time to combine the ports contained in a file, and additional ports.
 - Use `python main.py -p PORT1 PORT2 ... -f myports.txt`
 
+Finally, you also have the option of displaying the time elapsed to process a command.
+- Use `python main.py -t` to display the milliseconds that have elapsed between receiving a command and processing it.
+
 ### Find your Port:
 To find out which port your board is using, run the `Arduino Software > Tools > Port`.
 

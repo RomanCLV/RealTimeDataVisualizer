@@ -506,9 +506,9 @@ void example_10() {
   Serial.println("-l 1 1 " + String(timeElapsed, 5) + " " + String(value, 6));
   
   // first way to draw derivative lines
-  Serial.println("-ld 1 1 2 1 1"); // compute the first derivative
-  Serial.println("-ld 1 1 3 1 2"); // compute the first derivative and a second time to get the second derivative
-  Serial.println("-ld 1 1 4 1 3"); // compute the first derivative, then the second, and finally compute the third derivative 
+  //Serial.println("-ld 1 1 2 1 1"); // compute the first derivative
+  //Serial.println("-ld 1 1 3 1 2"); // compute the first derivative and a second time to get the second derivative
+  //Serial.println("-ld 1 1 4 1 3"); // compute the first derivative, then the second, and finally compute the third derivative 
   /*
     This method is working but can be optimized.
     The algorithm used to calculate a derivative uses recursion to calculate when the degree is greater than 1.
@@ -520,9 +520,9 @@ void example_10() {
     If you only need the main line and its second derivative, without displaying the first derivative, you can use the above method.
   */
   // second way to draw derivative lines
-  //Serial.println("-ld 1 1 2 1");
-  //Serial.println("-ld 2 1 3 1");
-  //Serial.println("-ld 3 1 4 1");
+  Serial.println("-ld 1 1 2 1");
+  Serial.println("-ld 2 1 3 1");
+  Serial.println("-ld 3 1 4 1");
 }
 
 void init_11() {
