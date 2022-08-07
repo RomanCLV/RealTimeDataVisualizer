@@ -10,12 +10,12 @@ Python describing
 
 from datetime import datetime
 import time
-import re
 import os
 import signal
 import argparse
 
 import command_helper as helper
+import tools
 
 # Additional modules added in the __name__ == "__main__" bloc
 
@@ -118,8 +118,7 @@ def main():
               "To specify it (or them), you can:\n"
               "- create the file ports.txt and write the available ports you want\n"
               "- use main.py -p [PORT1 PORT2 ...] or main.py -f my_ports.txt (both commands can be combined)")
-        input("Please press the Enter key to exit")
-        exit(0)
+        tools.exit_program()
 
     if args.delay is not None:
         if args.delay > 0:
@@ -553,7 +552,7 @@ def write_data(data: []):
         write_header(last_header)
 
     for i in range(len(data)):
-        if decimal_character != '.' and not is_int(data[i]) and is_float(data[i]):
+        if decimal_character != '.' and not tools.is_int(data[i]) and tools.is_float(data[i]):
             data[i] = data[i].replace('.', decimal_character)
 
     try_write(separator.join(data) + "\n", rewrite_header_if_error=True)
@@ -574,16 +573,6 @@ def try_write(data: str, try_count=1, rewrite_header_if_error=False):
         if rewrite_header_if_error and len(last_header) > 0:
             try_write(last_header, try_count + 1)
         try_write(data, try_count + 1)
-
-
-def is_int(text: str):
-    """Check if text matches with an int"""
-    return re.match(r"^[-+]?\d+$", text)
-
-
-def is_float(text: str):
-    """Check if text matches with a float"""
-    return re.match(r"[-+]?\d+(\.\d*)?$", text)
 
 
 def write_datas(data: []):
@@ -642,6 +631,8 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--port", type=str, nargs="+", help="set the communication ports.")
     parser.add_argument("-f", "--file", type=str, help="set the file containing all communication ports.")
     parser.add_argument("-d", "--delay", type=int,
-                        help="set a delay (in seconds) to automatically change the communication port if no data is received, even if the connection to the port was successful.")
-    parser.add_argument("-t", "--timer", action="store_true", help="display the elapsed time to process a received command")
+                        help="set a delay (in seconds) to automatically change the communication port if no data is "
+                             "received, even if the connection to the port was successful.")
+    parser.add_argument("-t", "--timer", action="store_true", help="display the elapsed time to process a received "
+                                                                   "command")
     main()

@@ -12,6 +12,7 @@ import argparse
 import os
 import subprocess
 import commands
+import tools
 
 COMMANDS_LIST = {
     "-n": commands.NewCommand(),
@@ -104,11 +105,7 @@ def main():
 
         def open_folder(file_created):
             print(f"File created: {file_created.name}")
-            choices = ["y", "Y", "n", "N"]
-            choice = ""
-            while choice not in choices:
-                choice = input("Open folder? [y], [Y], [n], [N] : ")
-            if choice in ["y", "Y"]:
+            if tools.input_choices("Open folder?") == "y":
                 subprocess.Popen(rf'explorer /select,{file_created.name}')
 
         file_path = os.path.join(os.getcwd(), args.extract)
